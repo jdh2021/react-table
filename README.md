@@ -1,4 +1,4 @@
-# React Notes
+# React Table
 
 ## Description
 
