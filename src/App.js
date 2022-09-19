@@ -6,9 +6,10 @@ import EditableRow from './components/EditableRow';
 import ReadOnlyRow from './components/ReadOnlyRow';
 
 const App = () => {
+  // array holding contact objects
   const [contacts, setContacts] = useState(data);
 
-  // store form values in state as object, hold form data when adding a new contact
+  // store values for new contact in form, in state as object
   const [addFormData, setAddFormData] = useState({
     fullName: '',
     address: '',
@@ -16,42 +17,21 @@ const App = () => {
     email: '',
   });
 
-  // hold form data when editing a given contact
-  const [editFormData, setEditFormData] = useState({
-    fullName: '',
-    address: '',
-    phoneNumber: '',
-    email: '',
-  })
-
-  // if edit contact id is null, user isn't editing a row. component rerenders b/c state changes
-  const [editContactId, setEditContactId] = useState(null);
 
   const handleAddFormChange = (event) => {
-    console.log('in handleAddFormChange');
     event.preventDefault();
     const fieldName = event.target.getAttribute('name'); // get name of input user has changed
-    const fieldValue = event.target.value; // get value
+    const fieldValue = event.target.value; // get value of input user has changed
     const newFormData = {...addFormData}; // make copy of existing form data so it can be changed w/o mutating state
-    newFormData[fieldName] = fieldValue; // update newFormData object. fieldName is key. fieldValue is property.
+    newFormData[fieldName] = fieldValue; // update newFormData object with fieldName and fieldValue. fieldName is key, fieldValue is property.
     setAddFormData(newFormData);
-  }
-
-  // store form data
-  const handleEditFormChange = (event) => {
-    event.preventDefault();
-    const fieldName = event.target.getAttribute('name'); // get name of input user has changed
-    const fieldValue = event.target.value; // get value
-    const newFormData = {...editFormData}; // make copy of existing form data so it can be changed w/o mutating state
-    newFormData[fieldName] = fieldValue; // update newFormData object. fieldName is key. fieldValue is property.
-    setEditFormData(newFormData);
   }
 
   // called when form is submitted
   const handleAddFormSubmit = (event) => {
     // prevents form from doing POST request when submitted
     event.preventDefault();
-    // takes data and create new object
+    // takes data and creates newContact object
     const newContact = {
       id: nanoid(),
       fullName: addFormData.fullName,
@@ -59,11 +39,47 @@ const App = () => {
       phoneNumber: addFormData.phoneNumber,
       email: addFormData.email,
     };
+    // keeps existing array of contacts, adds newContact object
     const newContacts = [...contacts, newContact];
     setContacts(newContacts);
   }
 
+   // if edit contact id is null, user isn't editing a row. component rerenders b/c state changes
+   const [editContactId, setEditContactId] = useState(null);
 
+  // holds form data when editing a given contact
+  const [editFormData, setEditFormData] = useState({
+    fullName: '',
+    address: '',
+    phoneNumber: '',
+    email: '',
+  })
+
+  // accepts event and contact from ReadOnly row clicked on, so we know id of contact being edited
+  const handleEditClick = (event, contact) => {
+    event.preventDefault();
+    setEditContactId(contact.id);
+    // prepopulates EditableRow with contact data from the object of row that user clicks on in ReadOnly row
+    const formValues = {
+      fullName: contact.fullName,
+      address: contact.address,
+      phoneNumber: contact.phoneNumber,
+      email: contact.email,
+    }
+    // editFormData is passed to EditableRow component with prepopulated values
+    setEditFormData(formValues);
+  }
+
+  const handleEditFormChange = (event) => {
+    event.preventDefault();
+    const fieldName = event.target.getAttribute('name'); // get name of input user has changed
+    const fieldValue = event.target.value; // get value of input user has changed
+    const newFormData = {...editFormData}; // make copy of existing form data so it can be changed w/o mutating state
+    newFormData[fieldName] = fieldValue; // update newFormData object
+    setEditFormData(newFormData);
+  }
+
+  // called from EditableRow component when save button is clicked
   const handleEditFormSubmit = (event) => {
     event.preventDefault();
     const editedContact = {
@@ -75,9 +91,9 @@ const App = () => {
     }
     // copy existing contacts array
     const newContacts = [...contacts];
-    // get index of row we're editing in contacts array
+    // get index of object we're editing in contacts array based on id
     const index = contacts.findIndex((contact) => contact.id === editContactId);
-    // replace contact object at index we're editing with editedContact 
+    // replace contact object at index we're editing with editedContact object
     newContacts[index] = editedContact;
     // set new array in state with updated contact object
     setContacts(newContacts);
@@ -85,21 +101,21 @@ const App = () => {
     setEditContactId(null);
   }
 
-  // accepts event and contact so we know id of contact being edited
-  const handleEditClick = (event, contact) => {
-    event.preventDefault();
-    setEditContactId(contact.id);
+  // EditableRow only renders if editContactId exists in contacts array
+  const handleCancelClick = () => {
+    setEditContactId(null);
+  }
 
-    // prepopulate row with contact data from that row when user clicks, take values from contact object, save to editFormData. 
-    // has same properties as editFormData object
-    const formValues = {
-      fullName: contact.fullName,
-      address: contact.address,
-      phoneNumber: contact.phoneNumber,
-      email: contact.email,
-    }
-    // pass this to editable row component
-    setEditFormData(formValues);
+  // finds index of contactId and removes object at that index from contacts array
+  const handleDeleteClick = (contactId) => {
+    // copy of current array so not mutate state
+    const newContacts = [...contacts];
+    // get index with findIndex
+    const index = contacts.findIndex((contact) => contact.id === contactId);
+    // splice method to remove contact object at given index in array
+    newContacts.splice(index, 1);
+    // set contacts with record removed as new contacts array
+    setContacts(newContacts);
   }
 
   return (<div className="app-container">
@@ -120,8 +136,8 @@ const App = () => {
             <Fragment>
               {/* if id of current contact object matches id stored in state in editContactId, then render editable row. */} 
               { editContactId === contact.id ? 
-                (<EditableRow editFormData={editFormData} handleEditFormChange={handleEditFormChange} />) : 
-                (<ReadOnlyRow contact={contact} handleEditClick={handleEditClick} />
+                (<EditableRow editFormData={editFormData} handleEditFormChange={handleEditFormChange} handleCancelClick={handleCancelClick} />) : 
+                (<ReadOnlyRow contact={contact} handleEditClick={handleEditClick} handleDeleteClick={handleDeleteClick} />
                 ) 
               }
             </Fragment>
