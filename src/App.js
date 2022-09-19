@@ -1,7 +1,9 @@
 import './App.css';
 import data from './mock-data.json';
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { nanoid } from 'nanoid'; // generates id for contact record
+import EditableRow from './components/EditableRow';
+import ReadOnlyRow from './components/ReadOnlyRow';
 
 const App = () => {
   const [contacts, setContacts] = useState(data);
@@ -41,6 +43,8 @@ const App = () => {
   }
 
   return (<div className="app-container">
+    {/* wrap entire table in form tag to avoid tbody, form child issue */}
+    <form>
     <table>
       <thead>
         <tr>
@@ -52,17 +56,20 @@ const App = () => {
       </thead>
       <tbody>
         { contacts.map((contact) =>
-            <tr>
-              <td>{contact.fullName}</td>
-              <td>{contact.address}</td>
-              <td>{contact.phoneNumber}</td>
-              <td>{contact.email}</td>
-          </tr>)
+            // can't have two children components, need to import fragment
+            <Fragment>
+              {/* would wrap editable row as form but <form> can't appear as child of <tbody */}
+              <EditableRow />
+              <ReadOnlyRow contact={contact} />
+            </Fragment>
+          )
         }
       </tbody>
     </table>
+    </form>
+
     <h2>Add A Contact</h2>
-    <form onSubmit={handleAddFormSubmit}>
+    <form>
       <input type="text" name="fullName" required="required" placeholder="Enter a name..." onChange={handleAddFormChange}></input>
       <input type="text" name="address" required="required" placeholder="Enter an address..." onChange={handleAddFormChange}></input>
       <input type="text" name="phoneNumber" required="required" placeholder="Enter a phone number..." onChange={handleAddFormChange}></input>
