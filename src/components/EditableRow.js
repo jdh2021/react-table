@@ -1,5 +1,3 @@
-
-
 const EditableRow = ({editFormData, handleEditFormChange, handleCancelClick}) => {
     return  (
     <tr>
@@ -9,6 +7,8 @@ const EditableRow = ({editFormData, handleEditFormChange, handleCancelClick}) =>
       <td><input type="email" name="email" required="required" placeholder="Enter an email..." value={editFormData.email} onChange={handleEditFormChange}></input></td>
       <td>
         <button type="submit">Save</button>
+      </td>
+      <td>
         <button type="button" onClick={handleCancelClick}>Cancel</button>
       </td>
     </tr>

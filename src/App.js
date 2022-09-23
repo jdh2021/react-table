@@ -9,14 +9,13 @@ const App = () => {
   // array holding contact objects
   const [contacts, setContacts] = useState(data);
 
-  // store values for new contact in form, in state as object
+  // store values for new contact in state as object
   const [addFormData, setAddFormData] = useState({
     fullName: '',
     address: '',
     phoneNumber: '',
     email: '',
   });
-
 
   const handleAddFormChange = (event) => {
     event.preventDefault();
@@ -44,7 +43,7 @@ const App = () => {
     setContacts(newContacts);
   }
 
-   // if edit contact id is null, user isn't editing a row. component rerenders b/c state changes
+   // if edit contact id is null, user isn't editing a row. component rerenders as state changes
    const [editContactId, setEditContactId] = useState(null);
 
   // holds form data when editing a given contact
@@ -121,6 +120,15 @@ const App = () => {
   return (<div className="app-container">
     {/* wrap entire table in form tag to avoid nesting tbody, form child issue */}
     <form onSubmit={handleEditFormSubmit}>
+    <h1>Add A Contact</h1>
+    <form onSubmit={handleAddFormSubmit}>
+      <input type="text" name="fullName" required="required" placeholder="Enter a name..." onChange={handleAddFormChange}></input>
+      <input type="text" name="address" required="required" placeholder="Enter an address..." onChange={handleAddFormChange}></input>
+      <input type="text" name="phoneNumber" required="required" placeholder="Enter a phone number..." onChange={handleAddFormChange}></input>
+      <input type="email" name="email" required="required" placeholder="Enter an email..." onChange={handleAddFormChange}></input>
+    <button type="submit">Add</button>
+    </form>
+    <br />
     <table>
       <thead>
         <tr>
@@ -128,7 +136,8 @@ const App = () => {
           <th>Address</th>
           <th>Phone Number</th>
           <th>Email</th>
-          <th>Actions</th>
+          <th></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -137,23 +146,13 @@ const App = () => {
               {/* if id of current contact object matches id stored in state in editContactId, then render editable row. */} 
               { editContactId === contact.id ? 
                 (<EditableRow editFormData={editFormData} handleEditFormChange={handleEditFormChange} handleCancelClick={handleCancelClick} />) : 
-                (<ReadOnlyRow contact={contact} handleEditClick={handleEditClick} handleDeleteClick={handleDeleteClick} />
-                ) 
+                (<ReadOnlyRow contact={contact} handleEditClick={handleEditClick} handleDeleteClick={handleDeleteClick} />) 
               }
             </Fragment>
           )
         }
       </tbody>
     </table>
-    </form>
-
-    <h2>Add A Contact</h2>
-    <form onSubmit={handleAddFormSubmit}>
-      <input type="text" name="fullName" required="required" placeholder="Enter a name..." onChange={handleAddFormChange}></input>
-      <input type="text" name="address" required="required" placeholder="Enter an address..." onChange={handleAddFormChange}></input>
-      <input type="text" name="phoneNumber" required="required" placeholder="Enter a phone number..." onChange={handleAddFormChange}></input>
-      <input type="email" name="email" required="required" placeholder="Enter an email..." onChange={handleAddFormChange}></input>
-    <button type="submit">Add</button>
     </form>
   </div>)
 };
